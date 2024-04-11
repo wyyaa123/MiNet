@@ -1,0 +1,81 @@
+# general settings
+name: MiNet-v2-GoPro
+model_type: ImageRestorationModel
+scale: 1
+num_gpu: 1
+manual_seed: 42
+
+datasets:
+  train:
+    name: CAL-train
+    type: PairedImageDataset
+    dataroot_gt: ./datasets/CAL/train/target_crops
+    dataroot_lq: ./datasets/CAL/train/input_crops
+
+    filename_tmpl: "{}"
+    io_backend:
+      # type: disk
+      type: disk
+
+    gt_size: 256
+    use_hflip: true
+    use_rot: true
+
+    # data loader
+    use_shuffle: true
+    num_worker_per_gpu: 8 # 每一个GPU 的data loader 读取进程数目
+    batch_size_per_gpu: 8 # 每块GPU 上的batch size
+    dataset_enlarge_ratio: 1 # 放大dataset 的长度倍数(默认为1)。可以扩大一个 epoch 所需 iterations
+    prefetch_mode: ~
+
+  val:
+    name: CAl-test
+    type: PairedImageDataset
+    dataroot_gt: ./datasets/CAL/train/target
+    dataroot_lq: ./datasets/CAL/train/input
+    io_backend:
+      type: disk
+
+network_g:
+  type: MiNet
+
+# path
+path:
+  pretrain_network_g: experiments/MiNet-v1-GoPro/models/net_g_200000.pth
+  param_key: params
+  strict_load_g: true
+  resume_state: ~
+
+# validation settings
+val:
+  window_size: 0
+  val_freq: !!float 1e4
+  rgb2bgr: true
+  use_image: true
+  save_img: true
+  pbar: true
+  grids: false
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false
+
+# logging settings
+logger:
+  print_freq: 200
+  save_checkpoint_freq: !!float 1e4
+  use_tb_logger: true
+  wandb:
+    project: ~
+    resume_id: ~
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500

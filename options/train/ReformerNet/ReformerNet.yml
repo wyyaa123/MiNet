@@ -1,0 +1,129 @@
+# 增大权重下降的值
+# general settings
+name: ReformerNet-v17-GoPro 
+model_type: ImageRestorationModel
+scale: 1
+num_gpu: 1
+manual_seed: 42
+
+datasets:
+  train:
+    name: gopro-train
+    type: PairedImageDataset
+    dataroot_gt: ./datasets/GoPro/train/sharp_crops.lmdb
+    dataroot_lq: ./datasets/GoPro/train/blur_crops.lmdb
+
+    filename_tmpl: '{}'
+    io_backend:
+      type: lmdb
+
+    gt_size: 256
+    use_hflip: true
+    use_rot: true
+
+    # data loader
+    use_shuffle: true
+    num_worker_per_gpu: 8 # 每一个GPU 的data loader 读取进程数目
+    batch_size_per_gpu: 8 # 每块GPU 上的batch size
+    dataset_enlarge_ratio: 1 # 放大dataset 的长度倍数(默认为1)。可以扩大一个 epoch 所需 iterations
+    prefetch_mode: ~
+
+  val:
+    name: gopro-test
+    type: PairedImageDataset
+    dataroot_gt: ./datasets/GoPro/test/target.lmdb
+    dataroot_lq: ./datasets/GoPro/test/input.lmdb
+    io_backend:
+      type: lmdb
+
+
+network_g:
+  type: Reformer
+  inp_ch: 3
+  width: 16
+  patch_w: 2
+  patch_h: 2
+  middle_blk_num: 8
+  middle_use_attn: true
+  enc_blk_nums: [1, 1, 1, 8]
+  enc_use_attns: [0, 0, 0, true]
+  dec_blk_nums: [1, 1, 1, 1]
+  dec_use_attns: [0, 0, 0, 0]
+  dw_expand: 2
+  ffn_expand: 2
+  bias: false
+
+# path
+path:
+  pretrain_network_g: ~
+  param_key: params
+  strict_load_g: true
+  resume_state: ~
+
+# training settings
+train:
+  # ema_decay: 0.999
+  optim_g:
+    type: AdamW
+    lr: !!float 5e-4
+    weight_decay: !!float 2e-2
+    betas: [0.9, 0.999]
+
+  scheduler:
+    type: TrueCosineAnnealingLR
+    T_max: 600000
+    eta_min: !!float 1e-7
+
+  total_iter: 600000
+  use_grad_clip: true
+  warmup_iter: -1 # no warm up
+
+  # losses
+  pixel_opt:
+    type: PSNRLoss
+    loss_weight: 1
+    reduction: mean
+  perceptual_opt:
+    type: PerceptualLoss
+    layer_weights:
+      'conv5_4': 1  # before relu
+    vgg_type: vgg19
+    use_input_norm: true
+    range_norm: false
+    perceptual_weight: 0.1
+    style_weight: 0.1
+    criterion: l1
+
+
+# validation settings
+val:
+  window_size: 0
+  val_freq: !!float 250000
+  rgb2bgr: true
+  use_image: true
+  save_img: false
+  pbar: true
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false
+
+# logging settings
+logger:
+  print_freq: 200
+  save_checkpoint_freq: !!float 1e4
+  use_tb_logger: true
+  wandb:
+    project: ~
+    resume_id: ~
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500

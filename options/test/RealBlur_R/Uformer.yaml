@@ -1,0 +1,11 @@
+# network structures
+network_g:
+  type: Uformer
+  img_size: 128
+  embed_dim: 32
+  win_size: 8
+  token_projection: linear
+  token_mlp: leff
+  depths: [1, 2, 8, 8, 2, 8, 8, 2, 1]
+  modulator: !!bool True
+  dd_in: 3
