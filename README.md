@@ -1,6 +1,18 @@
 # MiNet
-implement for image restoration🚀
+Implement for image restoration🚀. the dataset used in the project, include GoPro, HIDE, RealBlur. You can download them on datasets folder or other path. It is recommended to symlink your dataset root to this folder - datasets with the command ln -s xxx yyy.
 
+## Installation
+```
+python 3.9
+pytorch 1.13.0
+cuda 11.3
+cudnn 8.6.2
+```
+```
+git clone https://github.com/wyyaa123/MiNet.git
+pip install -r requirements.txt
+python setup.py develop --no_cuda_ext
+```
 
 ## train
 ```

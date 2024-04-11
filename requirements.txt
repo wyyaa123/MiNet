@@ -11,7 +11,7 @@ scipy
 tb-nightly
 tqdm
 yapf
-# mmcv #google
+# mmcv # pip install openmim; mim install mmcv
 timm
 einops
 ptflops
