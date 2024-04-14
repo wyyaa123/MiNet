@@ -38,6 +38,7 @@ from tqdm import tqdm
 from timeit import default_timer as timer
 from torch.utils.benchmark import Timer
 
+
 class DummyFile:
     def __init__(self, file):
         if file is None:
@@ -48,6 +49,7 @@ class DummyFile:
         if len(x.rstrip()) > 0:
             tqdm.write(x, file=self.file)
 
+
 @contextlib.contextmanager
 def redirect_stdout(file=None):
     if file is None:
@@ -57,10 +59,12 @@ def redirect_stdout(file=None):
     yield
     sys.stdout = old_stdout
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_path', "-m", type=str, default='experiments/MiNet-v3-GoPro/models/net_g_latest.pth')
-    parser.add_argument('--input_path', "-i", type=str, default='datasets/CAL/train/hazy', help='input test image folder')
+    parser.add_argument('--input_path', "-i", type=str, default='datasets/CAL/train/hazy',
+                        help='input test image folder')
     parser.add_argument('--output_path', "-o", type=str, default='images/', help='save image path')
     args = parser.parse_args()
 
@@ -114,7 +118,6 @@ def main():
     # model = Uformer(img_size=128, embed_dim=32, win_size=8, token_projection="linear", token_mlp="leff",
     #                 depths=[1, 2, 8, 8, 2, 8, 8, 2, 1], modulator=True, dd_in=3)
 
-
     # model = MIMOUNet()
     # model = MIMOUNetPlus()
 
@@ -125,13 +128,13 @@ def main():
 
     # model.load_state_dict(torch.load(args.model_path)['state_dict'], strict=True) # MPRNet
     # model.load_state_dict(torch.load(args.model_path)['model'], strict=True) # MIMOUNet
-    model.load_state_dict(torch.load(args.model_path)['params'], strict=True) # Reformer NAFNet HINet MINet
+    model.load_state_dict(torch.load(args.model_path)['params'], strict=True)  # Reformer NAFNet HINet MINet
     # model.load_state_dict(torch.load(args.model_path), strict=True) # Stripformer FFTformer
     model.to(device=device)
     model.eval()
 
     starter, ender = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
- 
+
     ## 2. read images dir
     print(f"Deleting files with 'deblur' suffix in {imgs_file_path}")
 
@@ -143,15 +146,14 @@ def main():
     except Exception as e:
         print(f"Error deleting files: {e}")
 
-    images_name = os.listdir(imgs_file_path)
+    images_name: str = os.listdir(imgs_file_path)
     # images_name = sorted(os.listdir(imgs_file_path), key=lambda name: int(''.join(filter(str.isdigit, name))))
 
-    print ("total %d images" % len(images_name))
+    print("total %d images" % len(images_name))
     time.sleep(1)
-    print ("Working!.........")
+    print("Working!.........")
 
     pbar = tqdm(images_name, total=len(images_name), unit="image")
-
 
     with torch.no_grad():
         for img_name in pbar:
@@ -167,12 +169,12 @@ def main():
             starter.record()
             output = model(img)
             ender.record()
-            torch.cuda.synchronize() # 等待GPU任务完成
+            torch.cuda.synchronize()  # 等待GPU任务完成
             sr_img = tensor2img(output)
 
             # imwrite(sr_img, os.path.join(output_path, img_name[:-4] + "_deblur.png"))
             # imwrite(sr_img, os.path.join(output_path, img_name))
-            torchvision.utils.save_image(output, os.path.join(output_path, img_name[:-4] + "_dehazed.png"))
+            torchvision.utils.save_image(output, os.path.join(output_path, img_name))
             with redirect_stdout():
                 print(f'inference {img_name} .. finished,'
                       f'elapsed {(starter.elapsed_time(ender)):.5f} millisecond.'
@@ -180,6 +182,6 @@ def main():
 
     print("Done!")
 
+
 if __name__ == '__main__':
     main()
-
