@@ -136,10 +136,10 @@ def main():
     starter, ender = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
 
     ## 2. read images dir
-    print(f"Deleting files with 'deblur' suffix in {imgs_file_path}")
+    print(f"Deleting files with 'deblur' and 'dehazed' suffix in {imgs_file_path}")
 
     try:
-        files_to_delete = [f for f in os.listdir(imgs_file_path) if f.endswith("deblur.png")]
+        files_to_delete = [f for f in os.listdir(imgs_file_path) if f.endswith("deblur.png") or f.endswith("dehazed.png")]
         for file_name in files_to_delete:
             file_path = os.path.join(imgs_file_path, file_name)
             os.remove(file_path)

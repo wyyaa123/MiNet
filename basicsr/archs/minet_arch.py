@@ -10,7 +10,6 @@ from basicsr.archs.arch_util import LayerNorm
 from basicsr.utils.registry import ARCH_REGISTRY
 from typing import Optional, Tuple, Union, Dict, List, Sequence
 
-
 class SimpleCaModule(nn.Module):
     def __init__(self, inp_chan: int):
         super(SimpleCaModule, self).__init__()
@@ -515,7 +514,7 @@ class MobileViTBlockv3(nn.Module):
     def folding_pytorch(self, patches: Tensor, output_size: Tuple[int, int]) -> Tensor:
         batch_size, in_dim, patch_size, n_patches = patches.shape
 
-        # [B, C, P, N]
+        # [B, C, P, N] --> [B, C, H, W]
         patches = patches.reshape(batch_size, in_dim * patch_size, n_patches)
 
         feature_map = F.fold(
@@ -528,7 +527,7 @@ class MobileViTBlockv3(nn.Module):
         return feature_map
 
     def resize_input_if_needed(self, x):
-        batch_size, in_channels, orig_h, orig_w = x.shape
+        _, _, orig_h, orig_w = x.shape
         if orig_h % self.patch_h != 0 or orig_w % self.patch_w != 0:
             new_h = int(math.ceil(orig_h / self.patch_h) * self.patch_h)
             new_w = int(math.ceil(orig_w / self.patch_w) * self.patch_w)
@@ -609,7 +608,7 @@ class SKFusion(nn.Module):
         return out
 
 
-@ARCH_REGISTRY.register()
+# @ARCH_REGISTRY.register()
 class MiNet(nn.Module):
     def __init__(self, 
                  in_chans=3, 
@@ -705,17 +704,17 @@ if __name__ == "__main__":
 
     print(macs, params)
 
-    net = net.cuda()
+    # net = net.cuda()
 
-    starter, ender = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+    # starter, ender = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
 
-    inp = torch.randn((1, 3, 548, 412), device='cuda:0')
+    # inp = torch.randn((1, 3, 548, 412), device='cuda:0')
 
-    starter.record()
-    oup = net(inp)
-    ender.record()
+    # starter.record()
+    # oup = net(inp)
+    # ender.record()
 
-    torch.cuda.synchronize()
+    # torch.cuda.synchronize()
 
-    print (f'elapsed {(starter.elapsed_time(ender)):.5f} millisecond.')
+    # print (f'elapsed {(starter.elapsed_time(ender)):.5f} millisecond.')
 

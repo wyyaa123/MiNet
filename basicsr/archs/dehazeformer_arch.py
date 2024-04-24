@@ -377,7 +377,7 @@ class SKFusion(nn.Module):
 		return out      
 
 
-@ARCH_REGISTRY.register()
+# @ARCH_REGISTRY.register()
 class DehazeFormer(nn.Module):
 	def __init__(self, in_chans=3, out_chans=4, window_size=8,
 				 embed_dims=[24, 48, 96, 48, 24],
@@ -573,12 +573,12 @@ if __name__ == "__main__":
 	
     print (macs, params)
 	
-    import time
+    # import time
 	
-    inp = torch.randn((1, 3, 256, 256))
+    # inp = torch.randn((1, 3, 256, 256))
 	
-    beg = time.time()
-    oup = net(inp)
-    end = time.time()
-    print(end - beg)
+    # beg = time.time()
+    # oup = net(inp)
+    # end = time.time()
+    # print(end - beg)
 

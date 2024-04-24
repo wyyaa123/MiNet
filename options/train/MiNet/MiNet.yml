@@ -1,5 +1,5 @@
 # general settings
-name: MiNet-v3-GoPro
+name: MiNet-v4-GoPro
 model_type: ImageRestorationModel
 scale: 1
 num_gpu: 1
