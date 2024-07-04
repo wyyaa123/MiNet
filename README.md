@@ -1,5 +1,5 @@
 # MiNet
-Implement for image restoration🚀. the dataset used in the project, include GoPro, HIDE, RealBlur. You can download them on datasets folder or other path. It is recommended to symlink your dataset root to this folder - datasets with the command ln -s xxx yyy.
+Implement for image restoration🚀. The dataset used in the project, include GoPro, HIDE, RealBlur. You can download them on datasets folder or other path. It is recommended to symlink your dataset root to this folder - datasets with the command ln -s xxx yyy.
 
 ## Installation
 ```
