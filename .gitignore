@@ -160,7 +160,7 @@ cython_debug/
 #.idea/
 
 datasets/
-images/*.png
+images/*
 tb_logger/
 
 experiments/
@@ -168,3 +168,5 @@ experiments/
 results/
 
 .vscode/
+
+scripts/featurePoints/images/*
